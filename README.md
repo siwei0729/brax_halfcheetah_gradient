@@ -25,19 +25,20 @@ NVIDIA-SMI 510.54       Driver Version: 510.54       CUDA Version: 11.6`
 #### Gradient norm from Halfcheetah
 ```
 grad_raw [inf]
-grad_raw [1.44705e+13]
-grad_raw [7.1334626e+16]
 grad_raw [inf]
-grad_raw [5.04371e+13]
-grad_raw [2.6387382e+10]
-grad_raw [1.6068858e+16]
+grad_raw [inf]
+grad_raw [3.7764926e+18]
+grad_raw [inf]
+grad_raw [inf]
+
 ```
 
 #### Gradient norm from ant
 ```
-grad_raw [1.4597763]
-grad_raw [8.197796]
-grad_raw [3.641092]
-grad_raw [1.9890647]
-grad_raw [4.062545]
+grad_raw [1.7340995]
+grad_raw [2.4045153]
+grad_raw [2.8107145]
+grad_raw [1.8724597]
+grad_raw [3.0794723]
+grad_raw [2.4992204]
 ```
