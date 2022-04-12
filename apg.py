@@ -175,10 +175,10 @@ def train(
              training_state.normalizer_params),
             axis_name='i')
         key, key_grad = jax.random.split(training_state.key)
-        grad, normalizer_params = loss_grad(training_state.policy_params,
-                                            training_state.normalizer_params,
-                                            state, key_grad)
-        grad = clip_by_global_norm(grad)
+        grad_raw, normalizer_params = loss_grad(training_state.policy_params,
+                                                training_state.normalizer_params,
+                                                state, key_grad)
+        grad = clip_by_global_norm(grad_raw)
         grad = jax.lax.pmean(grad, axis_name='i')
         params_update, optimizer_state = optimizer.update(
             grad, training_state.optimizer_state)
@@ -193,7 +193,7 @@ def train(
             key=key,
             optimizer_state=optimizer_state,
             normalizer_params=normalizer_params,
-            policy_params=policy_params), metrics, synchro
+            policy_params=policy_params), metrics, synchro, optax.global_norm(grad_raw)
 
     minimize = jax.pmap(_minimize, axis_name='i')
 
@@ -253,7 +253,9 @@ def train(
 
         t = time.time()
         # optimization
-        training_state, summary, synchro = minimize(training_state, first_state)
+        training_state, summary, synchro, grad_raw = minimize(training_state, first_state)
+
+        print("grad_raw", grad_raw)
         assert synchro[0], (it, training_state)
         jax.tree_map(lambda x: x.block_until_ready(), summary)
         sps = (episode_length * num_envs) / (time.time() - t)
@@ -294,3 +296,15 @@ def make_inference_fn(observation_size, action_size, normalize_observations):
         return action
 
     return inference_fn
+
+if __name__ == "__main__":
+    _, _, metrics = train(
+        environment_fn=envs.create_fn('halfcheetah'),
+        episode_length=100,
+        action_repeat=4,
+        num_envs=16,
+        learning_rate=3e-3,
+        normalize_observations=True,
+        log_frequency=200,
+        truncation_length=10,
+    )
